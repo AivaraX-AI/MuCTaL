@@ -1,5 +1,6 @@
 import time
-print('Start')
+
+print("Start")
 t = time.time()
 time.sleep(2)
-print('%f' % (time.time() - t))
+print("%f" % (time.time() - t))
