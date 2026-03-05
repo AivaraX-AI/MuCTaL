@@ -1,5 +1,3 @@
-"""fastai model inference script v7"""
-
 import os
 import sys
 import time
@@ -14,7 +12,6 @@ trained_model_path = Path(sys.argv[1])  # /tiles or /summary level of data path
 # as trained_model_path for cross-validation on held-out training data or
 # a path to new data organized in the same way)
 infer_data_path = Path(sys.argv[2])  # /tiles or /summary level of data path
-# e.g. .../data/proc/v6/tiles (or comparable)
 file_type = "*.jpg"  # image type of tiles or summary preprocessed data
 
 use_model = sys.argv[3]  # resnet18_10fold_10rep_500bal_5ft -> 10-fold cv

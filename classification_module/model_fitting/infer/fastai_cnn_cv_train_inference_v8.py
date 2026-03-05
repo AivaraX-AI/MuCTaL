@@ -1,7 +1,3 @@
-"""fastai model inference script v8
-V8 -- assumes tiles are in a different folder structure-> results/v8/tiles/pixelsize/SLIDENUM/files.jpg
-"""
-
 import os
 import sys
 import time
@@ -13,7 +9,7 @@ from fastai.vision.all import *
 
 split_data_path = Path(
     sys.argv[1]
-)  # infer_data_path v{n}/tiles/'224px' or blah/'500px' etc. but will assume [vn]/parse/[type] for version and type
+)  
 print("DATA_PATH:", split_data_path)
 data_root = split_data_path.parent.parent
 print("DATA_ROOT:", data_root)
@@ -24,8 +20,7 @@ use_model = trained_model_path.parent.parts[
     -1
 ]  # aka run_name i.e. "resnet18_jackknife", "resnet18_10fold_10rep_500bal_5ft", resnet18_2train_100rep_25bal
 print("INFER_MODEL:", use_model)
-slide_df_fn = sys.argv[3]  # /mnt/sampleinfo/slide_df_v8.0_44.tsv
-
+slide_df_fn = sys.argv[3]  
 # Set fold/rep csv files to use for inference e.g. (0, 100) not inclusive for 10 fold, 10 rep
 if len(sys.argv) > 4:
     # Infer data with a model indicated by jobid passed to sys.argv[4]
@@ -55,7 +50,6 @@ npx = int(pxstr.split("px")[0])  # n pixels of image size
 ver = int(ver.split("v")[1])  # Version of model run
 
 # Load list of all tiles:
-# slide_df = pd.read_csv(slide_df_fn, sep='\t').drop(columns='Unnamed: 0')
 slide_df = pd.read_csv(slide_df_fn, sep="\t")
 
 # Set timer

@@ -8,7 +8,6 @@ from pathlib import Path
 # as trained_model_path for cross-validation on held-out training data or
 # a path to new data organized in the same way)
 infer_data_path = Path(sys.argv[1])  # /tiles or /summary level of data path
-# e.g. .../data/proc/v6/tiles (or comparable)
 file_type = "*.jpg"
 
 use_model = sys.argv[2]  # resnet18_10fold_10rep_500bal_5ft -> 10-fold cv

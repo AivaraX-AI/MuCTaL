@@ -93,9 +93,6 @@ try:
     print("true positive", tp / (tp + fn))
 except:
     print("Unable to calculate performance.")
-#        dl = learn.dls.test_dl(test_df.loc[:, 'full_path'])
-#     print('Beginning inference:')
-#     pred = learn.get_preds(dl=dl, with_decoded=True)
 
 ss = time.time()
 print("Wall time: %ds" % (ss - s))
