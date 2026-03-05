@@ -115,7 +115,7 @@ Core dependencies inferred from scripts:
 
 ---
 
-## Quick Start (Template)
+## Quick Start
 
 > Update all paths below for your environment.
 
