@@ -1,4 +1,22 @@
 def ds_img_from_wsi(wsi_fn, nchunks, ds, verbose=False):
+    """_summary_
+
+    Parameters
+    ----------
+    wsi_fn : _type_
+        _description_
+    nchunks : _type_
+        _description_
+    ds : _type_
+        _description_
+    verbose : bool, optional
+        _description_, by default False
+
+    Returns
+    -------
+    _type_
+        _description_
+    """
     blank_detect = LabelWhiteSpaceHE(
         label_name="blank",
         proportion_threshold=0.99,
@@ -41,5 +59,4 @@ def ds_img_from_wsi(wsi_fn, nchunks, ds, verbose=False):
             if verbose:
                 print("Tile %d detected as blank... skipping" % i)
     print("%d images loaded, %d detected as blank" % (img_tot, blank_tot))
-    # blank_image = cv2.cvtColor(blank_image,cv2.COLOR_RGB2GRAY)
     return blank_image

@@ -6,8 +6,17 @@ from pathlib import Path
 
 
 def sha256sum(filename):
-    """filename: string of pathname/filename to use to generate hash
-    returns: hexidecimal sha256 hash of file
+    """_summary_
+
+    Parameters
+    ----------
+    filename : _type_
+        _description_
+
+    Returns
+    -------
+    _type_
+        _description_
     """
     h = hashlib.sha256()
     b = bytearray(128 * 1024)
@@ -22,6 +31,20 @@ def filelist_to_hash(
     fn_list,
     truncate=32,
 ):
+    """_summary_
+
+    Parameters
+    ----------
+    fn_list : _type_
+        _description_
+    truncate : int, optional
+        _description_, by default 32
+
+    Returns
+    -------
+    _type_
+        _description_
+    """
     start = time.time()
     hst = []
     hs = []
@@ -45,5 +68,12 @@ def filelist_to_hash(
 
 
 def check_dupes(df):
+    """_summary_
+
+    Parameters
+    ----------
+    df : _type_
+        _description_
+    """
     for col in df.columns:
         print("%s duplicates: %d" % (col, df.duplicated(subset=col).values.sum()))

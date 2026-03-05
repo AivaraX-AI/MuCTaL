@@ -37,9 +37,9 @@ if __name__ == "__main__":
 
     client = Client(cluster)
 
-    data = Path("/ix/rbao/Projects/panCancer_HE/data/skin/data/HE/")
-    results = Path("/ix/rbao/Projects/panCancer_HE/results/skin_rbao/h5")
-    fn = sp.joinpath("MEL_SYS10-577694_H&E.svs")
+    data = Path("/path/to/project/")
+    results = Path("/ipath/to/results")
+    fn = sp.joinpath("sample.svs")
     print(fn)
     print("exists", fn.exists())
     wsi = HESlide(fn)

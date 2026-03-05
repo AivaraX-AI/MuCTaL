@@ -14,10 +14,21 @@ from pathlib import Path
 def plot_geojson_feature(
     feat, ax, class_cm={"Malignant": "r", "Benign Bile Duct": "b"}
 ):
-    """feat = geojson qupath annotation feature
-    ax = matplotlib axis object
-    class_cm = dictionary mapping annotation classification names to plot colors
-    plots: annotation polygon on axis
+    """_summary_
+
+    Parameters
+    ----------
+    feat : _type_
+        _description_
+    ax : _type_
+        _description_
+    class_cm : dict, optional
+        _description_, by default {"Malignant": "r", "Benign Bile Duct": "b"}
+
+    Returns
+    -------
+    _type_
+        _description_
     """
     anno_class = feat["properties"]["classification"]["name"]
     anno_class_cm = [cm for cm in class_cm.keys()]
@@ -34,9 +45,23 @@ def plot_geojson_feature(
 
 
 def index_tiles_of_core_with_feature(feat, subset, tma_dat, rotate_180=False):
-    """feat = geojson qupath annotation feature
-    subset ->  dataframe of inferred tile names, preprocessed to subset ->   see: tiles_in_core_df_subset()
-    returns: which tile feature is centered in (if any)
+    """_summary_
+
+    Parameters
+    ----------
+    feat : _type_
+        _description_
+    subset : _type_
+        _description_
+    tma_dat : _type_
+        _description_
+    rotate_180 : bool, optional
+        _description_, by default False
+
+    Returns
+    -------
+    _type_
+        _description_
     """
     if rotate_180:
         core = subset.loc[0, "core"]
@@ -68,12 +93,29 @@ def calc_percent_poscells_in_tumor_tiles(
     thresh=0.95,  # threhsold for considering tile in tumor
     rotate_180=False,
 ):
-    """Take in a qupath geojson object of positive cell detections ('allobjects') e.g. IHC detections in one TMA core,
-    then use dataframe of tile location and size, with prediction probabilities of tumor (subset df[:,'p_pos']),
-    to return dictionary of number cells detected in- and outside tumor, positive for ihc (total_pos_in_tumor),
-    or negative (total_in_tumor-total_pos_in_tumor) (output)
-    not_in_tiles -> count indicates number of cells where cell location could not be mapped to a CNN tile; this can happen
-        if tile was excluded for having too much white space, artifacts, other issues.
+    """_summary_
+
+    Parameters
+    ----------
+    allobjects : _type_
+        _description_
+    subset : _type_
+        _description_
+    tma_dat : _type_
+        _description_
+    ax : _type_, optional
+        _description_, by default None
+    use_plot : bool, optional
+        _description_, by default False
+    class_cm : dict, optional
+        _description_, by default {"Positive": "yellow", "Negative": "cyan"}
+    thresh : float, optional
+        _description_, by default 0.95
+
+    Returns
+    -------
+    _type_
+        _description_
     """
     total = 0
     total_in_tumor = 0
@@ -115,9 +157,21 @@ def calc_percent_poscells_in_tumor_tiles(
 
 
 def check_tile_near_feature(feat, tile_xy, tile_size):
-    """feat = geojson qupath annotation feature
-    tile_xy = list of [x,y] coordinates
-    returns: whether points are in ANY polygon of this feature
+    """_summary_
+
+    Parameters
+    ----------
+    feat : _type_
+        _description_
+    tile_xy : _type_
+        _description_
+    tile_size : _type_
+        _description_
+
+    Returns
+    -------
+    _type_
+        _description_
     """
     coords = feat["geometry"]["coordinates"]
     nearby = False
@@ -137,11 +191,41 @@ def check_tile_near_feature(feat, tile_xy, tile_size):
 
 
 def check_overlap_feat(feat, points):
+    """_summary_
+
+    Parameters
+    ----------
+    feat : _type_
+        _description_
+    points : _type_
+        _description_
+
+    Returns
+    -------
+    _type_
+        _description_
+    """
     in_poly = check_points_in_feature(feat, points)
     return np.sum(in_poly) / len(in_poly) * 100
 
 
 def check_tile_overlap_feat(feat, tile_xy, tile_size):
+    """_summary_
+
+    Parameters
+    ----------
+    feat : _type_
+        _description_
+    tile_xy : _type_
+        _description_
+    tile_size : _type_
+        _description_
+
+    Returns
+    -------
+    _type_
+        _description_
+    """
     points = []
     per_overlap = 0
     nearby, n_mp, n_p = check_tile_near_feature(feat, tile_xy, tile_size)
@@ -154,9 +238,19 @@ def check_tile_overlap_feat(feat, tile_xy, tile_size):
 
 
 def check_points_in_feature(feat, points):
-    """feat = geojson qupath annotation feature
-    points = list of [x,y] coordinates
-    returns: whether points are in ANY polygon of this feature
+    """_summary_
+
+    Parameters
+    ----------
+    feat : _type_
+        _description_
+    points : _type_
+        _description_
+
+    Returns
+    -------
+    _type_
+        _description_
     """
     coords = feat["geometry"]["coordinates"]
 
@@ -165,7 +259,6 @@ def check_points_in_feature(feat, points):
     all_out = []
     for ii, multi_polygon in enumerate(coords):
         for i, polygon in enumerate(multi_polygon):
-            # out = np.zeros((len(points),1))
             path = mpl.path.Path(polygon)
             inside2 = path.contains_points(points)
             all_out.append(inside2)
@@ -174,7 +267,18 @@ def check_points_in_feature(feat, points):
 
 
 def parse_tile_fn(fn):
-    # tile_fn = '%s_n%d_x%d_y%d_px%d.jpg' % (slide_num,i,x,y,tile_size)
+    """_summary_
+
+    Parameters
+    ----------
+    fn : function
+        _description_
+
+    Returns
+    -------
+    _type_
+        _description_
+    """
     p = fn.split(".")[0].split("_")
     for e in p:
         if e[0] == "x":
@@ -189,6 +293,19 @@ def parse_tile_fn(fn):
 
 
 def plot_tile_on_annotation(feat, tile_xy, tile_size, ax):
+    """_summary_
+
+    Parameters
+    ----------
+    feat : _type_
+        _description_
+    tile_xy : _type_
+        _description_
+    tile_size : _type_
+        _description_
+    ax : _type_
+        _description_
+    """
     ax = plot_geojson_feature(feat, ax)
     polygon = feat["geometry"]["coordinates"]
     points = []
@@ -210,15 +327,19 @@ def plot_tile_on_annotation(feat, tile_xy, tile_size, ax):
 
 
 def add_coords_to_tile_df(tile_df, swap_xy=True):
-    """Take in tile inference dataframe from inference pipeline (tile_df)
-    e.g.  pd.read_csv(infer_path.joinpath('slide_7_all_valid_pred.csv'))
-    # add tile coordiantes to this.
-    Note: Depending on version, these coordinates are swapped (x,y) relative to other qupath exported coords (e.g. annotations or tma array)
-    tile_pred = add_coords_to_tile_df(tile_pred)
-    tile_pred.head()
-    Unnamed: 0	cur_path	slide	slide_class	p_pos	pred_cls	y	x	width
-    187	187	/ix/rbao/Projects/WSI-REG-000-BIsett-RBao/resu...	LARYNX 6-2_H&E	NaN	0.000007	0	14560	14560	224
-    250	250	/ix/rbao/Projects/WSI-REG-000-BIsett-RBao/resu...	LARYNX 6-2_H&E	NaN	0.041106	0	13216	13328	224
+    """_summary_
+
+    Parameters
+    ----------
+    tile_df : _type_
+        _description_
+    swap_xy : bool, optional
+        _description_, by default True
+
+    Returns
+    -------
+    _type_
+        _description_
     """
     if swap_xy:  # True for now
         tile_df.loc[:, "y"] = (
@@ -239,11 +360,21 @@ def add_coords_to_tile_df(tile_df, swap_xy=True):
 
 
 def unify_core_numbers(df, use_col="Core name", out_col="Core #"):
-    """Convert Letter-Number or Number-Letter convetion to LetterNumber
-    E.g. A-1 becomes A1
-         2-B becomes B2
-    use_col is column to unify
-    out_col is new column to put in df
+    """_summary_
+
+    Parameters
+    ----------
+    df : _type_
+        _description_
+    use_col : str, optional
+        _description_, by default "Core name"
+    out_col : str, optional
+        _description_, by default "Core #"
+
+    Returns
+    -------
+    _type_
+        _description_
     """
     temp = df[use_col].str.replace("-", "")
     new = []
@@ -256,20 +387,21 @@ def unify_core_numbers(df, use_col="Core name", out_col="Core #"):
 
 
 def tiles_in_core_df_subset(tma_dat, core, tile_df):
-    """Return specific subset of tiles that overlap with a given core and normalize their coordinates to the core
-    Given tile dataframe as described in add_coords_to_tile_df() AND exported qupath TMA dearrayed core locations
-    (QuPath -> manually or using exportTMAData(project + img_name + '_core_data.qptma', 10) ->
-    i.e. tma_dat = pd.read_csv('export.qptma', header=4, delimiter='\t')
-    return subset of tile_df with tiles that fall inside the given core - 'core'
-    and also add centered, core-normalized tile coordinates under norm_x and norm_y
-    return subset of tile_df
-    example:
-    subset = find_tiles_in_core(tma_dat,'%s-%s' %(core[0],core[1]),tile_pred)
-    subset.head()
-    Unnamed: 0	cur_path	slide	slide_class	p_pos	pred_cls	y	x	width	norm_x	norm_y
-    187	187	/ix/rbao/Projects/WSI-REG-000-BIsett-RBao/resu...	LARYNX 6-2_H&E	NaN	0.000007	0	14560	14560	224	3315.0	1929.0
-    250	250	/ix/rbao/Projects/WSI-REG-000-BIsett-RBao/resu...	LARYNX 6-2_H&E	NaN	0.041106	0	13216	13328	224	2083.0	585.0
-    298	298	/ix/rbao/Projects/WSI-REG-000-BIsett-RBao/resu...	LARYNX 6-2_H&E	NaN	0.999873	1	17024	14896	224	3651.0	4393.0
+    """_summary_
+
+    Parameters
+    ----------
+    tma_dat : _type_
+        _description_
+    core : _type_
+        _description_
+    tile_df : _type_
+        _description_
+
+    Returns
+    -------
+    _type_
+        _description_
     """
     subset = pd.DataFrame([])
     idx = tma_dat.loc[:, "Core #"] == core
