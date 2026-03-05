@@ -1,8 +1,3 @@
-"""fastai model inference script v10
-V8 -- assumes tiles are in a different folder structure-> results/v8/tiles/pixelsize/SLIDENUM/files.jpg
-V10 -- designed to work in pipeline, only expectation is an input list of tiles to infer in specific format (one output of preproc)
-"""
-
 import os
 import sys
 import time
@@ -17,8 +12,7 @@ model_fn = Path(sys.argv[2])  # Trained model path (can be same as data path)
 tile_path = sys.argv[3]
 output = Path(
     sys.argv[4]
-)  # infer_data_path v{n}/tiles/'224px' or blah/'500px' etc. but will assume [vn]/parse/[type] for version and type
-
+)  
 s = time.time()
 df = pd.read_csv(tile_df_pn, sep="\t")
 df.loc[:, "cur_path"] = tile_path + df.tile

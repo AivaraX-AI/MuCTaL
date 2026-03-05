@@ -16,9 +16,9 @@ copy_f = False
 # Copy to scratch:
 print("Copy tiles to %s" % scratch)
 df = pd.read_csv(
-    "/ix/rbao/Projects/panCancer_HE/data/balanced_10000_sk_lu_lv_cr_df_v1_79984tiles.tsv",
+    "/path/to/balanced_sk_lu_lv_cr_df_v1_tiles.tsv",
     sep="\t",
-)
+)  ## users are responsible to update the tsv file name accordingly
 df.loc[:, "tissue_anno"] = df.tissue + df.anno
 df.loc[:, "scratch_fn"] = scratch + "/" + df.fn.str.split("/").str[-1]
 
@@ -65,19 +65,18 @@ dls = tissue.dataloaders(df, bs=batch_size)
 learn = cnn_learner(
     dls,
     densenet169,
-    metrics=[accuracy],  # AccumMetric() Recall() ?
+    metrics=[accuracy], 
 ).to_fp16()
 
-# # Figure out what is reproducibly good:
-learn.fit_one_cycle(10)  # 10 seems better than 20
+learn.fit_one_cycle(10)  
 learn.unfreeze()
-learn.fit_one_cycle(20, lr_max=3e-3)  # worked well
-learn.fine_tune(5, base_lr=1e-5)  # 10 seemed too long
+learn.fit_one_cycle(20, lr_max=3e-3)  
+learn.fine_tune(5, base_lr=1e-5)  
 learn.fine_tune(5, base_lr=5e-6)
 
 
 fn = Path(
-    "/ix/rbao/Projects/panCancer_HE/results/models/densenet169_bs%d_n%d/"
+    "/path/to/results/models/densenet169_bs%d_n%d/"
     % (batch_size, df.shape[0])
 )
 fn.mkdir(exist_ok=True)

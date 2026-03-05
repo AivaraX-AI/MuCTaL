@@ -102,9 +102,6 @@ if "anno_path" in info.columns:
             allobjects = json.load(f)  #
     else:
         print("%s not found" % str(gf_fn))
-        # anno_types = [x['properties']['classification']['name'] \
-        #                     for x in allobjects \
-        #                     if 'classification' in x['properties'].keys()]
 
 
 # Color layer rearrange:
