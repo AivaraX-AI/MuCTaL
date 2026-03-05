@@ -65,19 +65,16 @@ dls = tissue.dataloaders(df, bs=batch_size)
 learn = cnn_learner(
     dls,
     densenet169,
-    metrics=[accuracy], 
+    metrics=[accuracy],
 ).to_fp16()
 
-learn.fit_one_cycle(10)  
+learn.fit_one_cycle(10)
 learn.unfreeze()
-learn.fit_one_cycle(20, lr_max=3e-3)  
-learn.fine_tune(5, base_lr=1e-5)  
+learn.fit_one_cycle(20, lr_max=3e-3)
+learn.fine_tune(5, base_lr=1e-5)
 learn.fine_tune(5, base_lr=5e-6)
 
 
-fn = Path(
-    "/path/to/results/models/densenet169_bs%d_n%d/"
-    % (batch_size, df.shape[0])
-)
+fn = Path("/path/to/results/models/densenet169_bs%d_n%d/" % (batch_size, df.shape[0]))
 fn.mkdir(exist_ok=True)
 learn.export(fn.joinpath("full_model.pkl"))

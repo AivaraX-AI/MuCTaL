@@ -10,9 +10,7 @@ from fastai.vision.all import *
 tile_df_pn = Path(sys.argv[1])  #
 model_fn = Path(sys.argv[2])  # Trained model path (can be same as data path)
 tile_path = sys.argv[3]
-output = Path(
-    sys.argv[4]
-)  
+output = Path(sys.argv[4])
 s = time.time()
 df = pd.read_csv(tile_df_pn, sep="\t")
 df.loc[:, "cur_path"] = tile_path + df.tile

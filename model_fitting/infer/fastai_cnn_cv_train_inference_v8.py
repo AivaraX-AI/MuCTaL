@@ -7,9 +7,7 @@ from fastai.vision.all import *
 
 #
 
-split_data_path = Path(
-    sys.argv[1]
-)  
+split_data_path = Path(sys.argv[1])
 print("DATA_PATH:", split_data_path)
 data_root = split_data_path.parent.parent
 print("DATA_ROOT:", data_root)
@@ -20,7 +18,7 @@ use_model = trained_model_path.parent.parts[
     -1
 ]  # aka run_name i.e. "resnet18_jackknife", "resnet18_10fold_10rep_500bal_5ft", resnet18_2train_100rep_25bal
 print("INFER_MODEL:", use_model)
-slide_df_fn = sys.argv[3]  
+slide_df_fn = sys.argv[3]
 # Set fold/rep csv files to use for inference e.g. (0, 100) not inclusive for 10 fold, 10 rep
 if len(sys.argv) > 4:
     # Infer data with a model indicated by jobid passed to sys.argv[4]
