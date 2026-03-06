@@ -18,30 +18,14 @@ from pathml.preprocessing import (
 )
 
 debug = False  # Only process 100 tiles
-use_dask = False  # Currently not sure what is going on with scheduler
+use_dask = False  
 version = 10  #
-# Version 4 included LabelArtifactTileHE
-# Version 5 includes blurry image exclusion via laplacian variance coefficient (cv2.Laplacian), bloodclot removal based on RGB values
-# Version 6 adds Macenko tile-level color correction -- no bloodclot remove, "summary" slides thresholded for % tissue to use for large-tile model
-# Version 8 -> MANY changes. remove large tile segmentation (does not help),
-# ->take tile size in as arg. segmentation.
-# -> Take in a list of files specificed from a spreadsheet. No clot detection/removal,
-# -> tile-level color correction -> keep for now, add kernel blur to tissue detect
-# -> increase tile jpg quality to -> 95 <- [only do this when using very small tiles?] currently for all tiles
-# Version 9 --> remove unnecessary variable inputs: src, etc
-# -> apply normalize to tile after tissue detect (improved stain norm?)
-# -> flip (x,y) coordinates because they were wrong previously
-# -> major update: if anno_path column in the sample.tsv file, and the annotation .geojson exists for that file, attempt to assign tiles to the annotations found in the geojson (>10% overlap)
-# Version 10-> for pipeline, slide is picked in sbatch script already, flatten path so /v9/ not involved, tile number not in output fn
-#               -> when saving , add x,y,sz columns to df output
 
 # Begin the job
 dest = Path(sys.argv[1])  # e.g. /mnt/results/
-fn = Path(sys.argv[2])  # version10 -> slide to use
-tile_size = int(sys.argv[3])
-helper_path = sys.argv[
-    4
-]  #'/ix/rbao/Projects/panCancer_HE/scripts/pancancer_he_classifier'
+fn = Path(sys.argv[2])  # svs slide file to preprocess / turn into tiles
+tile_size = int(sys.argv[3]) #224 default
+helper_path = sys.argv[4]  #'/path/to/MuCTaL'
 sys.path.append(helper_path)
 from helpers import anno as annoHelper
 
@@ -52,14 +36,12 @@ output.mkdir(parents=True, exist_ok=True)
 slide = fn.parts[-1].split(".")[0]
 dfn = "%s_tiles_df.tsv" % (slide)
 tile_df_pnfn = output.joinpath(dfn)
-
 tile_stride = tile_size  # tile_size//2
 tissue_thresh = 70  # % of tile that contains tissue
 gj_anno_overlap = 10  # If assigning tiles to geojson this percent of tile must be inside annotation to be included
 blur_thresh = 40  # threshold for blurriness calculated by strength of edges in image (higher = sharper image)
 use_stain_norm = True
 ignore_artifacts = True  # Found to be an issue in some datasets like acral melanoma
-
 start = time.time()  # Important to catch pathml load time as it can be quite long
 print("\nInside preproc v%d" % version)
 
@@ -76,7 +58,6 @@ print(
     % tissue_thresh
 )
 print("Job log beginning at %s" % (time_start_str))
-
 use_slide = fn.parts[-1]
 print("Use slide", use_slide, type(use_slide))
 tile_dest = dest.joinpath("tiles").joinpath(use_slide.split(".")[0])

@@ -17,9 +17,9 @@ from pathml.preprocessing import (
     StainNormalizationHE,
 )
 
-debug = False  # Only process 1000 tiles
+debug = False  # Only process 100 tiles
 use_dask = False  # Currently not sure what is going on with scheduler
-version = 9  #
+version = 10  #
 # Version 4 included LabelArtifactTileHE
 # Version 5 includes blurry image exclusion via laplacian variance coefficient (cv2.Laplacian), bloodclot removal based on RGB values
 # Version 6 adds Macenko tile-level color correction -- no bloodclot remove, "summary" slides thresholded for % tissue to use for large-tile model
@@ -32,26 +32,33 @@ version = 9  #
 # -> apply normalize to tile after tissue detect (improved stain norm?)
 # -> flip (x,y) coordinates because they were wrong previously
 # -> major update: if anno_path column in the sample.tsv file, and the annotation .geojson exists for that file, attempt to assign tiles to the annotations found in the geojson (>10% overlap)
+# Version 10-> for pipeline, slide is picked in sbatch script already, flatten path so /v9/ not involved, tile number not in output fn
+#               -> when saving , add x,y,sz columns to df output
 
 # Begin the job
 dest = Path(sys.argv[1])  # e.g. /mnt/results/
-file_list_pnfn = sys.argv[
-    2
-]  # Sampleinfo spreadsheet destination e.g. 'new_data_20220829_diagnosis_data.tsv'
-job_id = int(sys.argv[3])  # pick file to use
-tile_size = int(sys.argv[4])
+fn = Path(sys.argv[2])  # version10 -> slide to use
+tile_size = int(sys.argv[3])
 helper_path = sys.argv[
-    5
+    4
 ]  #'/ix/rbao/Projects/panCancer_HE/scripts/pancancer_he_classifier'
 sys.path.append(helper_path)
 from helpers import anno as annoHelper
 
+file_avail = fn.exists()
+print("File available", file_avail)
+output = dest.joinpath("tiles")
+output.mkdir(parents=True, exist_ok=True)
+slide = fn.parts[-1].split(".")[0]
+dfn = "%s_tiles_df.tsv" % (slide)
+tile_df_pnfn = output.joinpath(dfn)
+
 tile_stride = tile_size  # tile_size//2
 tissue_thresh = 70  # % of tile that contains tissue
-# Stain norm will work better with less empty tile
 gj_anno_overlap = 10  # If assigning tiles to geojson this percent of tile must be inside annotation to be included
 blur_thresh = 40  # threshold for blurriness calculated by strength of edges in image (higher = sharper image)
 use_stain_norm = True
+ignore_artifacts = True  # Found to be an issue in some datasets like acral melanoma
 
 start = time.time()  # Important to catch pathml load time as it can be quite long
 print("\nInside preproc v%d" % version)
@@ -63,53 +70,33 @@ if debug == True:
 else:
     print("Running in processing mode (not debug).")
 
-info = pd.read_csv(file_list_pnfn, sep="\t")
-tile_dest = (
-    dest.joinpath("v%d" % version).joinpath("tiles").joinpath("%dpx" % tile_size)
-)
 time_start_str = time.strftime("%Y-%m-%d %H:%M:%S%p", time.localtime(start))
-
 print(
     "Uses: blank tile detection-> artifact detection -> tissue > %d%%, for final tile inclusion"
     % tissue_thresh
 )
 print("Job log beginning at %s" % (time_start_str))
-print("Sampleinfo table: %s\n" % str(file_list_pnfn))
 
-use_slide = str(info.slide.values[job_id])
+use_slide = fn.parts[-1]
 print("Use slide", use_slide, type(use_slide))
-tile_dest = (
-    dest.joinpath("v%d" % version)
-    .joinpath("tiles")
-    .joinpath("%dpx" % tile_size)
-    .joinpath(use_slide.split(".")[0])
-)
-fn = Path(info.slide_path.values[job_id])
-file_avail = fn.exists()
-print("File available", file_avail)
+tile_dest = dest.joinpath("tiles").joinpath(use_slide.split(".")[0])
 use_anno = False
 tile_df = pd.DataFrame([])
-if "anno_path" in info.columns:
-    print("Annotation file column detected.")
-    gj_fn = Path(info.anno_path.values[job_id])
+if use_anno:
+    gj_fn = Path(sys.argv[5])
     if gj_fn.exists():
         use_anno = True
-        print(
-            "annotation file found: will check overlaps", info.annotation.values[job_id]
-        )
+        print("annotation file found: will check overlaps", str(gj_fn.parts[-1]))
         print("Loading geojson...")
         with open(gj_fn) as f:
             allobjects = json.load(f)  #
-    else:
-        print("%s not found" % str(gf_fn))
 
 
 # Color layer rearrange:
 bgr = (2, 1, 0)
 if file_avail:
-    slide_num = info.slide.values[job_id].split(".")[0]
-    print("This job will process %s" % (info.slide[job_id]))
-
+    slide_num = use_slide.split(".")[0]
+    print("This job will process %s" % (use_slide))
     tile_dest.mkdir(parents=True, exist_ok=True)
 
     # Create whole slide image object:
@@ -159,7 +146,7 @@ if file_avail:
             art_detect.apply(tile)
 
             # In addition -- detect pen / glass edge artifacts??
-            if tile.labels["artifact"] == False:
+            if ignore_artifacts or tile.labels["artifact"] == False:
                 im = np.array(tile.image)  # r g b page order
                 blur_detect = cv2.Laplacian(im[:, :, bgr], cv2.CV_64F).var()
 
@@ -183,6 +170,7 @@ if file_avail:
                         tile_df.loc[ii, "tile"] = tile_fn
                         tile_df.loc[ii, "x"] = x
                         tile_df.loc[ii, "y"] = y
+                        tile_df.loc[ii, "sz"] = tile_size
                         print(
                             "\t\t\t--%d) Saving tile %s (%d/%d)"
                             % (ii, tile_dest.joinpath(tile_fn), i, tot_tiles_est)
@@ -241,14 +229,12 @@ if file_avail:
                         if (debug == True) and (ii > 100):
                             print("Debug max of 100 tiles reached, exiting.")
                             break
-    dfn = "%s_%d_tiles_df.tsv" % (slide_num, tile_df.shape[0])
-    tile_df_pnfn = dest.joinpath("v%d" % version).joinpath("tiles").joinpath(dfn)
     print("Saving", tile_df_pnfn)
-    tile_df.to_csv(tile_df_pnfn, sep="\t")
+    tile_df.to_csv(tile_df_pnfn, sep="\t", index=False)
     print("Processing complete.")
 else:
     print("No %s files found in %s" % (file_type, str(src)))
 
 stop = time.time()
 dur = str(datetime.timedelta(seconds=(stop - start)))
-print("Wall time = %s H:M:S" % dur)
+print("Tile preProc Wall time = %s H:M:S" % dur)
