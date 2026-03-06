@@ -31,31 +31,15 @@ The codebase appears to be research/HPC-oriented and includes path placeholders 
 MuCTaL/
 ├── LICENSE
 ├── README.md
-├── dask/
-│   └── h5test.py
 ├── helpers/
 │   ├── __init__.py
 │   ├── anno.py
 │   ├── preproc.py
 │   └── tile.py
-├── model_fitting/
-│   ├── code_tests/
-│   ├── cross_valid/
-│   │   ├── make_crossval_csv_tiles_v1.py
-│   │   ├── make_crossval_csv_v9.py
-│   │   └── make_crossval_csv_v10.py
-│   ├── infer/
-│   │   ├── fastai_cnn_cv_train_inference_v8.py
-│   │   ├── fold_summary_v7.py
-│   │   └── resnet10kfold_inference_v7.py
-│   └── train/
-│       └── slurm_fastai_cnn_fit_v2.py
-├── models/
 ├── notebooks/
-│   ├── 01_generate_wsi_sample_spreadsheet.ipynb
+│   ├── 01_generate_wsi_samplesheet_run_preprocessing.ipynb
 │   ├── 02_annotated_tile_file_org_for_training.ipynb
-│   ├── 03_train_model_on_subset_data_fastai2.7.ipynb
-│   ├── 035_show_more_training_examples.ipynb
+│   ├── 03_train_model_fastai2.7.ipynb
 │   ├── 04_model_eval_fastai2.7.ipynb
 │   ├── 05_example_inference_to_geojson.ipynb
 │   ├── 06_acral_tile_heatmap_class_viz.ipynb
@@ -65,8 +49,6 @@ MuCTaL/
 │   ├── pathml_preproc_v10.py
 │   ├── tile_infer_to_geojson.py
 │   └── tile_infer_to_heatmap.py
-├── preprocessing/
-│   └── pathml_preproc_v9.py
 └── train/
     └── train_full.py
 ```
@@ -77,11 +59,8 @@ MuCTaL/
 
 - **`pipeline/`**: Main runnable pipeline scripts for preprocessing, inference, and output generation.
 - **`train/`**: End-to-end model training script for full dataset training.
-- **`model_fitting/`**: Cross-validation split generation, inference over folds, and summarization tools.
 - **`helpers/`**: Reusable utility code (annotation geometry checks, preprocessing helpers, tile parsing).
 - **`notebooks/`**: Interactive analysis/tutorial notebooks for data prep, training, evaluation, and visualization.
-- **`dask/`**: Experimental distributed preprocessing test with Dask + PathML.
-- **`models/`**: Intended location for saved model artifacts/checkpoints.
 
 ---
 
@@ -89,8 +68,8 @@ MuCTaL/
 
 1. **Prepare sample metadata** (notebooks and TSV inputs).
 2. **Preprocess WSIs to tiles** with `pipeline/pathml_preproc_v10.py`.
-3. **Build cross-validation CSVs** with `model_fitting/cross_valid/make_crossval_csv_v10.py`.
-4. **Train model(s)** with scripts in `train/` or `model_fitting/train/`.
+3. **Build balanced tile CSVs** 
+4. **Train model(s)** with scripts in `train/` 
 5. **Infer tile probabilities** using `pipeline/fastai_inference_v10.py`.
 6. **Generate outputs**:
    - GeoJSON tumor regions: `pipeline/tile_infer_to_geojson.py`
