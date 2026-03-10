@@ -9,7 +9,12 @@ MuCTaL provides scripts and notebooks for end-to-end pathology AI workflows:
 - post-processing into clinically useful outputs (heatmaps and GeoJSON regions),
 - cross-validation utilities and exploratory notebooks.
 
-Trained model to be made available on huggingface https://huggingface.co/hillmancancercenterds/MuCTaL
+Trained model available on huggingface https://huggingface.co/hillmancancercenterds/MuCTaL
+
+![Alt text](/tile_prediction_heatmap.png)
+
+
+
 ---
 
 ## Repository Summary
