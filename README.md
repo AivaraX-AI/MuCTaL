@@ -1,6 +1,6 @@
 # MuCTaL
 
-**A lightweight multi-cancer tumor localization framework for whole-slide histopathology images (H&E).**
+Brian Isett, Rebekah Dadey, Aofei Li, Ryan C. Augustin, Kate Smith, Aatur D. Singhi, Qiangqiang Gu, Riyue Bao. **A lightweight multi-cancer tumor localization framework for whole-slide histopathology images (H&E).** DOI:10.48550/arXiv.2603.08844.
 
 MuCTaL provides scripts and notebooks for end-to-end pathology AI workflows:
 
